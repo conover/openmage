@@ -94,7 +94,8 @@ var Mage = function() {
     var that            = this,
         target_place    = null,
         mov_speed       = 2,
-        health          = 25;
+        health          = 75,
+        shield          = 75;
     
     this.set_dim([15, 35])
     
@@ -161,7 +162,6 @@ var Mage = function() {
                       y_mov_speed = mov_speed * 2 
                     }
                     
-                    
                     draw_place[0] = that.place[0] + x_mov_speed
                     draw_place[1] = that.place[1] - y_mov_speed
                 } else if(bearing < 0 && bearing > ((Math.PI / 2) * -1)) {
@@ -190,6 +190,7 @@ var Mage = function() {
         CONTEXT.fillStyle = that.color
         CONTEXT.fillRect(draw_place[0], draw_place[1],that.dim[0],that.dim[1]);
         draw_health_bar();
+        draw_shield_bar();
         draw_elements();
     } 
     
@@ -206,9 +207,18 @@ var Mage = function() {
     }
     
     function draw_shield_bar() {
-        CONTEXT.fillStyle = 'rgb(0,0,0)'
+        CONTEXT.fillStyle = 'rgb(100,100,100)'
         vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 10
-        CONTEXT.fillRect(vert_location,that.place[1] + 39,50, 5)
+        CONTEXT.fillRect(vert_location,that.place[1] + 46,50, 3)
+        
+        
+        CONTEXT.fillStyle = 'rgb(255,255,255)'
+        vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 10
+        CONTEXT.fillRect(vert_location,that.place[1] + 46,Math.round(shield / 2), 3)
+        
+        CONTEXT.strokeStyle = 'rgba(100,100,100, .4)';
+        vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 10
+        CONTEXT.strokeRect(vert_location,that.place[1] + 46,50, 3)
     }
     
     function draw_elements() {
@@ -223,12 +233,12 @@ var Mage = function() {
         
         for(var i = 0; i < 5;i++) {
         
-            vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 6
+            vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 5
             
             CONTEXT.strokeStyle = 'rgba(100,100,100,.5)';
             CONTEXT.fillStyle = 'rgba(175,175,175,.3)';
             CONTEXT.beginPath();
-            CONTEXT.arc(vert_location + (i * 10.5), that.place[1] + 51 , 4, 0, Math.PI * 2, true);
+            CONTEXT.arc(vert_location + (i * 10.3), that.place[1] + 56 , 4, 0, Math.PI * 2, true);
             CONTEXT.closePath();
             CONTEXT.fill();
             CONTEXT.stroke();
