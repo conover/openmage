@@ -1,4 +1,4 @@
-Object.prototype.types = []
+Object.prototype.types = [];
 
 
 Function.prototype.method = function (name, func) {
@@ -31,3 +31,17 @@ Function.method('inherits', function (parent) {
     });
     return this;
 });
+
+var Point = function(x, y) {
+    var that = this;
+    this.types.push('point')
+    this.x = x;
+    this.y = y;
+}
+
+var Dimension = function(width, height) {
+    var that = this;
+    this.types.push('dimension');
+    this.width = width;
+    this.height = height;
+}

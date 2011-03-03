@@ -18,7 +18,7 @@
         
         $().ready(function() {
             
-            var tick = 50,//1000/50,
+            var tick = 10,//1000/50,
                 game_timer = null,
                 entity_manager = new EntityManager(),
                 play_area = null;
@@ -41,7 +41,7 @@
             
             red_mage = new Mage();
             entity_manager.add_entity(red_mage);
-            red_mage.set_place([0, 0]);
+            red_mage.set_loc(new Point(0,0));
             red_mage.set_color('rgb(0,200,100)')
             
             function game_loop() {

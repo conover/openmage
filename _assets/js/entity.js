@@ -49,39 +49,29 @@ var Entity = function() { // Base from which all entities inherit
     
     this.types.push('entity')
 
-    this.id = null; // Assigned by the entity manager
-    this.place = [0,0]
-    this.dim = [0,0]
+    this.id     = null; // Assigned by the entity manager
+    this.loc    = new Point(0, 0);
+    this.dim    = new Dimension(0,0);
     
     this.set_dim = function(dim) {
-        if(!(dim instanceof Array)) {
-            throw 'Dimensions must be an array'
-        } else if(dim.length != 2) {
-            throw 'Dimensions must be an array of dim 2'
-        } else if(dim[0].constructor !== Number || dim[1].constructor != Number) {
-            throw 'Dimensions array values must be numbers'
+        if(dim.types.indexOf('dimension') == -1) {
+            throw 'Specified object must be a dimension type'
         }
-        //console.log(dim);
         that.dim = dim;
     }
     
-    this.set_place = function(place) {
-        if(!(place instanceof Array)) {
-            throw 'Place must be an array'
-        } else if(place.length != 2) {
-            throw 'Place must be an array of dim 2'
-        } else if(place[0].constructor !== Number || place[1].constructor != Number) {
-            throw 'Place array galues must be numbers'
+    this.set_loc = function(loc) {
+        if(loc.types.indexOf('point') == -1) {
+            throw 'Specifid object must be a point type'
         }
-        //console.log(place);
-        that.place = place;
+        that.loc = loc;
     }
     
     this.get_bounding_box = function () {
-        return  [   that.place[0] - this.dim[0], this.place[1] - this.dim[1],
-                    that.place[0] + this.dim[0], this.place[1] + this.dim[1],
-                    that.place[0] - this.dim[0], this.place[1] + this.dim[1],
-                    that.place[0] + this.dim[0], this.place[1] - this.dim[1]
+        return  [   that.loc.x - this.dim.width, this.loc.y - this.dim.height,
+                    that.loc.x + this.dim.width, this.loc.y + this.dim.height,
+                    that.loc.x - this.dim.width, this.loc.y + this.dim.height,
+                    that.loc.x + this.dim.width, this.loc.y - this.dim.height
                 ]
     }
     
@@ -92,12 +82,13 @@ var Entity = function() { // Base from which all entities inherit
 
 var Mage = function() {
     var that            = this,
-        target_place    = null,
-        mov_speed       = 2,
-        health          = 75,
-        shield          = 75;
+        
+        target_loc      = null, // Point the user wants to move to
+        mov_speed       = .7,   // Default movement speed
+        health          = 75,   // Starting health
+        shield          = 0;    // Starting shield
     
-    this.set_dim([15, 35])
+    this.set_dim(new Dimension(15, 35)) // Default mage size
     
     this.types.push('mage')
     
@@ -113,82 +104,85 @@ var Mage = function() {
     
     this.draw = function() {
         
-        var draw_place = [0,0]
+        var draw_loc = new Point(0, 0); // New location to draw the mage
         
-        if(target_place != null) {
-            //console.log(Math.abs(that.place[0] - target_place[0]) + ' ' +  Math.abs(that.place[1] - target_place[1]))
+        if(target_loc != null) {
             
-            var abs_diff_x = Math.abs(that.place[0] - target_place[0]),
-                abs_diff_y = Math.abs(that.place[1] - target_place[1]);
+            var abs_diff_x = Math.abs(that.loc.x - target_loc.x),
+                abs_diff_y = Math.abs(that.loc.y - target_loc.y);
             
-            
-            if(abs_diff_x < 15 && abs_diff_y < 15) { // How close does the target have to be to stop moving
-                
-                draw_place = that.place;
-                target_place = null;
+            if(abs_diff_x < 10 && abs_diff_y < 10) { // How close does the target have to be to stop moving
+                draw_loc = that.loc;
+                target_loc = null;
             } else {
+                
+                // Which directions to mov in
+                var bearing = -1 * Math.atan2(target_loc.y - that.loc.y, target_loc.x - that.loc.x);
+                
+                // Without a smoothing factor, the animation with look really jerky
+                var     x_mov_speed     = null,
+                        y_mov_speed     = null,
+                        smooth_factor   = null;
+                    
+                smooth_factor = Math.abs(bearing);
+                if(smooth_factor != 0) {
+                    while(smooth_factor > 1) {
+                        smooth_factor -= 1;
+                    }
+                }
+                    
+                x_mov_speed = y_mov_speed = mov_speed * smooth_factor;
             
+                if(abs_diff_x > abs_diff_y) {
+                  x_mov_speed = mov_speed * 1.5
+                } else {
+                  y_mov_speed = mov_speed * 1.5
+                }
             
-                //console.log((target_place[1] - that.place[1]) + ' '  + (target_place[0] - that.place[0]) )
-            
-                bearing = -1 * Math.atan2(target_place[1] - that.place[1], target_place[0] - that.place[0])
             
                 if(bearing == 0) { // Move right
                     console.log('Move east')
-                    draw_place[0] = that.place[0] + mov_speed
-                    draw_place[1] = that.place[1]
-                
+                    draw_loc.x = that.loc.x + mov_speed
+                    draw_loc.y = that.loc.y
                 } else if(bearing == Math.PI || bearing == (-1 * Math.PI)) {
                     console.log('Move west')
-                    draw_place[0] = that.place[0] - mov_speed
-                    draw_place[1] = that.place[1] 
+                    draw_loc.x = that.loc.x - mov_speed
+                    draw_loc.y = that.loc.y 
                 } else if(bearing == (Math.PI / 2)) {
                     console.log('Move north')
-                    draw_place[0] = that.place[0]
-                    draw_place[1] = that.place[1] - mov_speed
+                    draw_loc.x = that.loc.x
+                    draw_loc.y = that.loc.y - mov_speed
                 } else if(bearing == ((Math.PI /2) * -1)) {
                     console.log('Move south')
-                    draw_place[0] = that.place[0]
-                    draw_place[1] = that.place[1] + mov_speed
+                    draw_loc.x = that.loc.x
+                    draw_loc.y = that.loc.y + mov_speed
                 } else if(bearing > 0 && bearing < (Math.PI / 2)) {
                     console.log('Move north-east')
                     
-                    x_mov_speed = mov_speed;
-                    y_mov_speed = mov_speed;
-                    
-                    if(abs_diff_x > abs_diff_y) {
-                      x_mov_speed = mov_speed * 2
-                    } else {
-                      y_mov_speed = mov_speed * 2 
-                    }
-                    
-                    draw_place[0] = that.place[0] + x_mov_speed
-                    draw_place[1] = that.place[1] - y_mov_speed
+                    draw_loc.x = that.loc.x + x_mov_speed
+                    draw_loc.y = that.loc.y - y_mov_speed
                 } else if(bearing < 0 && bearing > ((Math.PI / 2) * -1)) {
                     console.log('Move south-east')
-                    draw_place[0] = that.place[0] + mov_speed
-                    draw_place[1] = that.place[1] + mov_speed
+                    
+                    draw_loc.x = that.loc.x + x_mov_speed
+                    draw_loc.y = that.loc.y + y_mov_speed
                 } else if(bearing < ((Math.PI / 2) * -1) && bearing > (Math.PI * -1)) {
                     console.log('Move south-west')
-                    draw_place[0] = that.place[0] - mov_speed
-                    draw_place[1] = that.place[1] + mov_speed
+                    draw_loc.x = that.loc.x - x_mov_speed
+                    draw_loc.y = that.loc.y + y_mov_speed
                 } else if(bearing > (Math.PI / 2) && bearing < Math.PI) {
                     console.log('Move norht-west')
-                    draw_place[0] = that.place[0] - mov_speed
-                    draw_place[1] = that.place[1] - mov_speed
+                    draw_loc.x = that.loc.x - x_mov_speed
+                    draw_loc.y = that.loc.y - y_mov_speed
                 }
-            
-                console.log(bearing);
-                //place = target_place;
-                that.place = draw_place;
-                //target_place = null;
+                that.loc = draw_loc;
             }
         } else {
-            draw_place = that.place
+            draw_loc = that.loc;
         }
         
         CONTEXT.fillStyle = that.color
-        CONTEXT.fillRect(draw_place[0], draw_place[1],that.dim[0],that.dim[1]);
+        CONTEXT.fillRect(draw_loc.x, draw_loc.y,that.dim.width,that.dim.height);
         draw_health_bar();
         draw_shield_bar();
         draw_elements();
@@ -198,27 +192,27 @@ var Mage = function() {
     function draw_health_bar() {
         // Health bar conists of a red bar on top of a black bar
         CONTEXT.fillStyle = 'rgb(0,0,0)'
-        vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 10
-        CONTEXT.fillRect(vert_location,that.place[1] + 39,50, 5)
+        vert_location = that.loc.x - Math.round(that.dim.width / 2) - 10
+        CONTEXT.fillRect(vert_location,that.loc.y + 39,50, 5)
         
         CONTEXT.fillStyle = 'rgb(255,0,0)'
-        vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 10
-        CONTEXT.fillRect(vert_location,that.place[1] + 39,Math.round(health / 2), 5)
+        vert_location = that.loc.x - Math.round(that.dim.width / 2) - 10
+        CONTEXT.fillRect(vert_location,that.loc.y + 39,Math.round(health / 2), 5)
     }
     
     function draw_shield_bar() {
         CONTEXT.fillStyle = 'rgb(100,100,100)'
-        vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 10
-        CONTEXT.fillRect(vert_location,that.place[1] + 46,50, 3)
+        vert_location = that.loc.x - Math.round(that.dim.width / 2) - 10
+        CONTEXT.fillRect(vert_location,that.loc.y + 46,50, 4)
         
         
         CONTEXT.fillStyle = 'rgb(255,255,255)'
-        vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 10
-        CONTEXT.fillRect(vert_location,that.place[1] + 46,Math.round(shield / 2), 3)
+        vert_location = that.loc.x - Math.round(that.dim.width / 2) - 10
+        CONTEXT.fillRect(vert_location,that.loc.y + 46,Math.round(shield / 2), 4)
         
         CONTEXT.strokeStyle = 'rgba(100,100,100, .4)';
-        vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 10
-        CONTEXT.strokeRect(vert_location,that.place[1] + 46,50, 3)
+        vert_location = that.loc.x - Math.round(that.dim.width / 2) - 10
+        CONTEXT.strokeRect(vert_location,that.loc.y + 46,50, 4)
     }
     
     function draw_elements() {
@@ -233,12 +227,12 @@ var Mage = function() {
         
         for(var i = 0; i < 5;i++) {
         
-            vert_location = that.place[0] - Math.round(that.dim[0] / 2) - 5
+            vert_location = that.loc.x - Math.round(that.dim.width / 2) - 5
             
             CONTEXT.strokeStyle = 'rgba(100,100,100,.5)';
             CONTEXT.fillStyle = 'rgba(175,175,175,.3)';
             CONTEXT.beginPath();
-            CONTEXT.arc(vert_location + (i * 10.3), that.place[1] + 56 , 4, 0, Math.PI * 2, true);
+            CONTEXT.arc(vert_location + (i * 10.3), that.loc.y + 57 , 4, 0, Math.PI * 2, true);
             CONTEXT.closePath();
             CONTEXT.fill();
             CONTEXT.stroke();
@@ -246,8 +240,8 @@ var Mage = function() {
     
     }
     this.on_click = function(x, y) {
-        target_place = [x,y];
-        //console.log(x + ' ' + y);
+        target_loc = new Point(x,y);
+        console.log(x + ' ' + y);
     }
 }
 
