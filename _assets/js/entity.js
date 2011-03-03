@@ -84,7 +84,7 @@ var Mage = function() {
     var that            = this,
         
         target_loc      = null, // Point the user wants to move to
-        mov_speed       = .7,   // Default movement speed
+        mov_speed       = 2.7,   // Default movement speed
         health          = 75,   // Starting health
         shield          = 0;    // Starting shield
     
@@ -138,40 +138,37 @@ var Mage = function() {
                 } else {
                   y_mov_speed = mov_speed * 1.5
                 }
-            
-            
+                
                 if(bearing == 0) { // Move right
-                    console.log('Move east')
+                    //console.log('Move east')
                     draw_loc.x = that.loc.x + mov_speed
                     draw_loc.y = that.loc.y
                 } else if(bearing == Math.PI || bearing == (-1 * Math.PI)) {
-                    console.log('Move west')
+                    //console.log('Move west')
                     draw_loc.x = that.loc.x - mov_speed
                     draw_loc.y = that.loc.y 
                 } else if(bearing == (Math.PI / 2)) {
-                    console.log('Move north')
+                    //console.log('Move north')
                     draw_loc.x = that.loc.x
                     draw_loc.y = that.loc.y - mov_speed
                 } else if(bearing == ((Math.PI /2) * -1)) {
-                    console.log('Move south')
+                    //console.log('Move south')
                     draw_loc.x = that.loc.x
                     draw_loc.y = that.loc.y + mov_speed
                 } else if(bearing > 0 && bearing < (Math.PI / 2)) {
-                    console.log('Move north-east')
-                    
+                    //console.log('Move north-east')
                     draw_loc.x = that.loc.x + x_mov_speed
                     draw_loc.y = that.loc.y - y_mov_speed
                 } else if(bearing < 0 && bearing > ((Math.PI / 2) * -1)) {
-                    console.log('Move south-east')
-                    
+                    //console.log('Move south-east')
                     draw_loc.x = that.loc.x + x_mov_speed
                     draw_loc.y = that.loc.y + y_mov_speed
                 } else if(bearing < ((Math.PI / 2) * -1) && bearing > (Math.PI * -1)) {
-                    console.log('Move south-west')
+                    //console.log('Move south-west')
                     draw_loc.x = that.loc.x - x_mov_speed
                     draw_loc.y = that.loc.y + y_mov_speed
                 } else if(bearing > (Math.PI / 2) && bearing < Math.PI) {
-                    console.log('Move norht-west')
+                    //console.log('Move norht-west')
                     draw_loc.x = that.loc.x - x_mov_speed
                     draw_loc.y = that.loc.y - y_mov_speed
                 }
@@ -239,10 +236,7 @@ var Mage = function() {
         }
     
     }
-    this.on_mouse_drag = function(x, y) {
-        target_loc = new Point(x,y);
-        console.log(x + ' ' + y);
-    }
+    this.on_mouse_drag = function(x, y) {target_loc = new Point(x,y);}
 }
 
 Mage.inherits(Entity);

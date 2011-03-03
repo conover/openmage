@@ -18,7 +18,7 @@
         
         $().ready(function() {
             
-            var tick            = 10,//1000/50,
+            var tick            = 35,//1000/50,
                 game_timer      = null,
                 entity_manager  = new EntityManager(),
                 play_area       = null,
@@ -50,10 +50,8 @@
             red_mage.set_color('rgb(0,200,100)')
             
             function game_loop() {
-                //CONTEXT.save();
                 CONTEXT.clearRect(-400,-300, 800,600);
                 entity_manager.maintain();
-                //CONTEXT.restore();
                 GAME_TIMER = setTimeout(game_loop, tick);
             }
             game_loop();
