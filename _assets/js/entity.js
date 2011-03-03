@@ -28,10 +28,10 @@ var EntityManager = function() {
         entities.splice(remove_index, 1);
     }
     
-    this.notify_click = function(x, y) {
+    this.notify_mouse_drag = function(x, y) {
         entities.forEach(function(val, index, arr) {
-            if(typeof val.on_click == 'function') {
-                val.on_click(x, y);
+            if(typeof val.on_mouse_drag == 'function') {
+                val.on_mouse_drag(x, y);
             }
         });
     }
@@ -239,7 +239,7 @@ var Mage = function() {
         }
     
     }
-    this.on_click = function(x, y) {
+    this.on_mouse_drag = function(x, y) {
         target_loc = new Point(x,y);
         console.log(x + ' ' + y);
     }

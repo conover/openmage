@@ -18,10 +18,11 @@
         
         $().ready(function() {
             
-            var tick = 10,//1000/50,
-                game_timer = null,
-                entity_manager = new EntityManager(),
-                play_area = null;
+            var tick            = 10,//1000/50,
+                game_timer      = null,
+                entity_manager  = new EntityManager(),
+                play_area       = null,
+                mouse_dragging  = false;
             
             function init_play_area() {
                 play_area = document.getElementById('play_area');
@@ -32,10 +33,14 @@
             
             init_play_area();
             
-            play_area.click(function(e) {
-                var x = Math.floor((e.pageX-play_area.offset().left-400)),
-                    y = Math.floor((e.pageY-play_area.offset().top -300));
-                entity_manager.notify_click(x, y)
+            play_area.mousedown(function() {mouse_dragging = true;})
+            play_area.mouseup(function() {mouse_dragging = false;})
+            play_area.mousemove(function(e) {
+                if(mouse_dragging) {
+                    var x = Math.floor((e.pageX-play_area.offset().left-400)),
+                        y = Math.floor((e.pageY-play_area.offset().top -300));
+                    entity_manager.notify_mouse_drag(x, y)
+                }
             })
             
             
@@ -53,10 +58,6 @@
             }
             game_loop();
         });
-        
-        
-        
-        
         </script>
     </head>
     <body>
