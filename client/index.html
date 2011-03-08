@@ -9,8 +9,10 @@
             body {width: 800px;margin:auto;}
             #play_area {border: 1px solid #000;}
         </style>
+        <script type="text/javascript" src="_assets/js/json.js"></script>
         <script type="text/javascript" src="_assets/js/util.js"></script>
         <script type="text/javascript" src="_assets/js/jquery-1.5.1.js"></script>
+        <script type="text/javascript" src="_assets/js/game.js"></script>
         <script type="text/javascript" src="_assets/js/entity.js"></script>
         <script type="text/javascript">
         
@@ -18,6 +20,10 @@
         
         $().ready(function() {
             
+            
+            var game_manager = GameManager('play_area')
+            
+            /*
             var tick            = 35,//1000/50,
                 game_timer      = null,
                 entity_manager  = new EntityManager(),
@@ -39,7 +45,7 @@
                 if(mouse_dragging) {
                     var x = Math.floor((e.pageX-play_area.offset().left-400)),
                         y = Math.floor((e.pageY-play_area.offset().top -300));
-                    entity_manager.notify_mouse_drag(x, y)
+                    entity_manager.movement(x, y)
                 }
             })
             
@@ -54,7 +60,10 @@
                 entity_manager.maintain();
                 GAME_TIMER = setTimeout(game_loop, tick);
             }
-            game_loop();
+            //game_loop();
+            */
+            
+            
         });
         </script>
     </head>
