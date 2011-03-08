@@ -83,7 +83,12 @@ var GameManager = function(play_area_id) {
     var local_mage = new Mage();
     local_mage.local = true
     local_mage.set_loc(new Point(0,0));
-    local_mage.set_color('rgb(0,200,100)')
+    
+    red_color   = Math.floor(Math.random() * 255)
+    green_color = Math.floor(Math.random() * 255)
+    blue_color  = Math.floor(Math.random() * 255)
+    
+    local_mage.set_color('rgb(' + red_color + ',' + green_color + ',' + blue_color + ')')
     entity_manager.add_entity(local_mage);
     
     // Event Handlers for moving the local mage
