@@ -7,7 +7,7 @@ var EntityManager = function() {
         
     this.add_entity = function(entity) {
        if(entity.types.indexOf('entity') == -1) {
-           throw 'Specified object must be an entity type'
+          throw 'Specified object must be an entity type'
        }
        entity_count += 1;
        entity.id = Math.floor(Math.random() * 9999999);
@@ -60,7 +60,7 @@ var Entity = function() { // Base from which all entities inherit
     this.prev_status = ''
     
     this.to_json = function() {
-        return that.id + '|' + that.types[that.types.length - 1]+ '|' + that.toJSONString(that.sync_vars);
+        return that.id + '|mage|' + that.toJSONString(that.sync_vars);
     }
     
     this.from_json = function(json_string) {
