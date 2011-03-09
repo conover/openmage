@@ -47,6 +47,7 @@ var EntityManager = function() {
 }
 
 var Entity = function() { // Base from which all entities inherit
+    MageObj.call(this);
     var that        = this;
     
     this.id         = null; // Assigned by the entity manager
@@ -55,7 +56,7 @@ var Entity = function() { // Base from which all entities inherit
     
     this.sync_vars  = ['dim'];
     
-    this.types = ['entity']
+    this.types.push('entity')
     
     this.prev_status = ''
     
@@ -120,6 +121,9 @@ var Mage = function() {
     this.mov_speed       = 2.7,  // Default movement speed
     this.health          = 75,   // Starting health
     this.shield          = 0;    // Starting shield    
+    
+    this.beam = null
+    this.bursts = [] 
     
     this.sync_vars.push('target_loc', 'mov_speed', 'health', 'shield', 'color')
         
@@ -218,6 +222,12 @@ var Mage = function() {
         draw_health_bar(context);
         draw_shield_bar(context);
         draw_elements(context);
+        if(that.beam != null) {
+            that.beam.draw(context);
+        }
+        that.bursts.forEach(function(burst) {
+            burst.draw(context);
+        })
     } 
     
     
@@ -271,5 +281,60 @@ var Mage = function() {
         }
     
     }
-    this.move = function(x, y) {that.target_loc = new Point(x,y);}
+    this.move = function(mouse_loc) {that.target_loc = mouse_loc;}
+    
+    this.fire_beam = function(mouse_loc) {
+        that.beam = new Beam(mouse_loc, that.loc);
+    }
+    this.stop_beam = function() {
+        if(that.beam != null) {
+            that.beam = null;
+        }
+    }
+    
+    this.fire_burst = function() {
+        
+    }
+}
+
+var Projectile = function() {
+    MageObj.call(this);
+    var that = this;
+    
+    this.types.push('projectile');
+}
+
+var Beam = function(target_loc, mage_loc) {
+    Projectile.call(this);
+    var that = this,
+        max_duration = 3,
+        beam_width = 15;
+    
+    // Can be updated while firing
+    this.target_loc = target_loc;
+    this.mage_loc   = mage_loc;
+    
+    this.types.push('beam');
+    
+    this.draw = function(context) {
+        
+        var bearing = -1 * Math.atan2(that.target_loc.y - that.mage_loc.y, that.target_loc.x - that.mage_loc.x);
+        var smooth_factor = Math.abs(bearing);
+        if(smooth_factor != 0) {
+            while(smooth_factor > 1) {
+                smooth_factor -= 1;
+            }
+        }
+        console.log(smooth_factor);
+        
+        context.fillStyle = "red";11
+        context.beginPath()
+        context.moveTo(that.mage_loc.x, that.mage_loc.y);
+        context.lineTo(that.target_loc.x, that.target_loc.y);
+        context.lineTo(that.target_loc.x, that.target_loc.y + beam_width)
+        context.lineTo(that.mage_loc.x, that.mage_loc.y + beam_width)
+        context.lineTo(that.mage_loc.x, that.mage_loc.y)
+        context.fill();
+        
+    }
 }

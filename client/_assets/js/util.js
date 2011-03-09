@@ -4,11 +4,16 @@ if(typeof(console.log) == 'undefined') {
     }
 }
 
-Object.prototype.types = []
+var MageObj = function() {
+    this.types = []
+}
 
 var Point = function(x, y) {
+    MageObj.call(this);
     var that = this;
-    this.types.push('point')
+
+    this.types.push('point');
+    
     this.x = x;
     this.y = y;
     
@@ -16,8 +21,11 @@ var Point = function(x, y) {
 }
 
 var Dimension = function(width, height) {
+    MageObj.call(this);
     var that = this;
+    
     this.types.push('dimension');
+    
     this.width = width;
     this.height = height;
     

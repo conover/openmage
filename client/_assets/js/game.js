@@ -16,7 +16,9 @@ var GameManager = function(play_area_id) {
         entity_manager  = null,
         
         play_area       = null,
-        context         = null;
+        context         = null,
+        
+        mouse_loc       = null; // Current mouse location
         
     
     
@@ -96,17 +98,31 @@ var GameManager = function(play_area_id) {
     play_area.mousedown(function() {mouse_dragging = true;})
     play_area.mouseup(function() {mouse_dragging = false;})
     play_area.mousemove(function(e) {
-        if(mouse_dragging) {
-            var x = Math.floor((e.pageX-play_area.offset().left-400)),
-                y = Math.floor((e.pageY-play_area.offset().top -300));
-            local_mage.move(x, y)
-        }
-    })
-    play_area.click(function(e) {
         var x = Math.floor((e.pageX-play_area.offset().left-400)),
             y = Math.floor((e.pageY-play_area.offset().top -300));
-        local_mage.move(x, y);
-    })
+        
+        mouse_loc = new Point(x, y);
+        if(mouse_dragging) {
+            local_mage.move(mouse_loc);
+        }
+    });
+    play_area.click(function(e) {
+        local_mage.move(mouse_loc);
+    });
+    $('body').keydown(function(event) {
+        //console.log(event.which);
+        if(event.which == 49) {
+            local_mage.fire_beam(mouse_loc);
+        }
+    });
+    $('body').keyup(function(event) {
+        //console.log(event.which);
+        if(event.which == 49) {
+            local_mage.stop_beam();
+        }
+    });
+    
+    
     
     var frame_count = 0
     function game_loop() {
