@@ -319,20 +319,39 @@ var Beam = function(target_loc, mage_loc) {
     this.draw = function(context) {
         
         var bearing = -1 * Math.atan2(that.target_loc.y - that.mage_loc.y, that.target_loc.x - that.mage_loc.x);
+        
         var smooth_factor = Math.abs(bearing);
         if(smooth_factor != 0) {
             while(smooth_factor > 1) {
                 smooth_factor -= 1;
             }
         }
-        console.log(smooth_factor);
+        //console.log(bearing);
         
-        context.fillStyle = "red";11
+        context.fillStyle = "red";
         context.beginPath()
         context.moveTo(that.mage_loc.x, that.mage_loc.y);
         context.lineTo(that.target_loc.x, that.target_loc.y);
-        context.lineTo(that.target_loc.x, that.target_loc.y + beam_width)
-        context.lineTo(that.mage_loc.x, that.mage_loc.y + beam_width)
+        
+        if(bearing > 0 && bearing < 1) {
+            context.lineTo(that.target_loc.x + beam_width * smooth_factor, that.target_loc.y + beam_width)
+            context.lineTo(that.mage_loc.x + beam_width * smooth_factor, that.mage_loc.y + beam_width)
+        } else if(bearing > 1 && bearing < (Math.PI / 2)) {
+            //smooth_factor = smooth_factor + .5
+            
+            console.log(smooth_factor);
+            context.lineTo(that.target_loc.x + (beam_width * (smooth_factor + 1)), that.target_loc.y + beam_width * (smooth_factor + .5))
+            context.lineTo(that.mage_loc.x + beam_width, that.mage_loc.y + beam_width * smooth_factor)
+        } else if(bearing < 0 && bearing > -1) {
+            context.lineTo(that.target_loc.x - beam_width * smooth_factor, that.target_loc.y + beam_width)
+            context.lineTo(that.mage_loc.x - beam_width * smooth_factor, that.mage_loc.y + beam_width)
+        } else {
+            context.lineTo(that.target_loc.x + beam_width, that.target_loc.y + beam_width)
+            context.lineTo(that.mage_loc.x + beam_width, that.mage_loc.y + beam_width)
+        }
+        
+        
+        
         context.lineTo(that.mage_loc.x, that.mage_loc.y)
         context.fill();
         
