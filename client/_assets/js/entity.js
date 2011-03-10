@@ -118,7 +118,7 @@ var Mage = function() {
     var that            = this;
     
     this.target_loc      = null; // Point the user wants to move to
-    this.mov_speed       = 2.7,  // Default movement speed
+    this.mov_speed       = 11,  // Default movement speed
     this.health          = 75,   // Starting health
     this.shield          = 0;    // Starting shield    
     
@@ -130,6 +130,7 @@ var Mage = function() {
     this.set_dim(new Dimension(15, 35)) // Default mage size
     
     this.types.push('mage')
+    
     
     this.set_color = function(color) {
         if(color.constructor !== String) {
@@ -149,83 +150,21 @@ var Mage = function() {
             burst.draw(context);
         })
         
-        
-        var draw_loc = new Point(0, 0); // New location to draw the mage
-        
         if(that.target_loc != null) {
             
-            var abs_diff_x = Math.abs(that.loc.x - that.target_loc.x),
-                abs_diff_y = Math.abs(that.loc.y - that.target_loc.y);
+            var distance = Math.sqrt(Math.pow(that.target_loc.x - that.loc.x, 2) + Math.pow(that.target_loc.y - that.loc.y, 2));
             
-            if(abs_diff_x < 10 && abs_diff_y < 10) { // How close does the target have to be to stop moving
-                draw_loc = that.loc;
+            
+            if(distance < that.dim.width) {
                 that.target_loc = null;
             } else {
-                
-                // Which directions to mov in
-                var bearing = -1 * Math.atan2(that.target_loc.y - that.loc.y, that.target_loc.x - that.loc.x);
-                
-                // Without a smoothing factor, the animation with look really jerky
-                var     x_mov_speed     = null,
-                        y_mov_speed     = null,
-                        smooth_factor   = null;
-                    
-                smooth_factor = Math.abs(bearing);
-                if(smooth_factor != 0) {
-                    while(smooth_factor > 1) {
-                        smooth_factor -= 1;
-                    }
-                }
-                    
-                x_mov_speed = y_mov_speed = that.mov_speed * smooth_factor;
-            
-                if(abs_diff_x > abs_diff_y) {
-                  x_mov_speed = that.mov_speed * 1.5
-                } else {
-                  y_mov_speed = that.mov_speed * 1.5
-                }
-                
-                if(bearing == 0) { // Move right
-                    //console.log('Move east')
-                    draw_loc.x = that.loc.x + mov_speed
-                    draw_loc.y = that.loc.y
-                } else if(bearing == Math.PI || bearing == (-1 * Math.PI)) {
-                    //console.log('Move west')
-                    draw_loc.x = that.loc.x - mov_speed
-                    draw_loc.y = that.loc.y 
-                } else if(bearing == (Math.PI / 2)) {
-                    //console.log('Move north')
-                    draw_loc.x = that.loc.x
-                    draw_loc.y = that.loc.y - mov_speed
-                } else if(bearing == ((Math.PI /2) * -1)) {
-                    //console.log('Move south')
-                    draw_loc.x = that.loc.x
-                    draw_loc.y = that.loc.y + mov_speed
-                } else if(bearing > 0 && bearing < (Math.PI / 2)) {
-                    //console.log('Move north-east')
-                    draw_loc.x = that.loc.x + x_mov_speed
-                    draw_loc.y = that.loc.y - y_mov_speed
-                } else if(bearing < 0 && bearing > ((Math.PI / 2) * -1)) {
-                    //console.log('Move south-east')
-                    draw_loc.x = that.loc.x + x_mov_speed
-                    draw_loc.y = that.loc.y + y_mov_speed
-                } else if(bearing < ((Math.PI / 2) * -1) && bearing > (Math.PI * -1)) {
-                    //console.log('Move south-west')
-                    draw_loc.x = that.loc.x - x_mov_speed
-                    draw_loc.y = that.loc.y + y_mov_speed
-                } else if(bearing > (Math.PI / 2) && bearing < Math.PI) {
-                    //console.log('Move norht-west')
-                    draw_loc.x = that.loc.x - x_mov_speed
-                    draw_loc.y = that.loc.y - y_mov_speed
-                }
-                that.loc = draw_loc;
+                that.loc = new Point( that.loc.x + ((that.mov_speed / distance) * (that.target_loc.x - that.loc.x)), 
+                                      that.loc.y + ((that.mov_speed / distance) * (that.target_loc.y - that.loc.y)));
             }
-        } else {
-            draw_loc = that.loc;
         }
         
         context.fillStyle = that.color
-        context.fillRect(draw_loc.x, draw_loc.y,that.dim.width,that.dim.height);
+        context.fillRect(that.loc.x, that.loc.y, that.dim.width, that.dim.height);
         draw_health_bar(context);
         draw_shield_bar(context);
         draw_elements(context);
@@ -327,10 +266,10 @@ var Beam = function(mouse_loc, mage) {
     
     this.draw = function(context) {
         
-        var bearing = -1 * Math.atan2(that.mouse_loc.y - mage.loc.y, that.mouse_loc.x - mage.loc.x),
-            deg = null,
+        var bearing     = -1 * Math.atan2(that.mouse_loc.y - mage.loc.y, that.mouse_loc.x - mage.loc.x),
+            deg         = null,
             mage_center = mage.center(),
-            target = null;
+            target      = null;
         
         target = new Point( mage_center.x + (length * (that.mouse_loc.x - mage_center.x)), 
                             mage_center.y + (length * (that.mouse_loc.y - mage_center.y)))
@@ -344,7 +283,6 @@ var Beam = function(mouse_loc, mage) {
         
         if(deg > 0 && deg < 90) {
             deg = deg / 100
-            
             context.lineTo(target.x - (beam_width * deg), target.y - (beam_width * (.9 - deg)));
             context.lineTo(mage_center.x - (beam_width * deg), mage_center.y - (beam_width * (.9 - deg)));
         } else if(deg > 90) {
