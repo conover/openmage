@@ -103,7 +103,6 @@ var GameManager = function(play_area_id) {
         }
     })
     play_area.mouseup(function() {
-        console.log('mouse up')
         mouse_dragging = false;
         local_mage.target_loc = null;
     })
