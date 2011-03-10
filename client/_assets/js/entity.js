@@ -289,7 +289,11 @@ var Mage = function() {
     this.move = function(mouse_loc) {that.target_loc = mouse_loc;}
     
     this.fire_beam = function(mouse_loc) {
-        that.beam = new Beam(mouse_loc, that);
+        if(that.beam == null) {
+            that.beam = new Beam(mouse_loc, that);
+        } else {
+            that.beam.mouse_loc = mouse_loc
+        }
     }
     this.stop_beam = function() {
         if(that.beam != null) {
@@ -312,45 +316,56 @@ var Projectile = function() {
 var Beam = function(mouse_loc, mage) {
     Projectile.call(this);
     var that = this,
-        max_duration = 3,
-        beam_width = 7;
+        max_duration    = 3,
+        beam_width      = 7,
+        length          = .1,
+        propogation     = 100,
+        MAX_LENGTH      = 500;    
     
+    this.mouse_loc = mouse_loc
     this.types.push('beam');
     
     this.draw = function(context) {
         
-        var bearing = -1 * Math.atan2(mouse_loc.y - mage.loc.y, mouse_loc.x - mage.loc.x),
+        var bearing = -1 * Math.atan2(that.mouse_loc.y - mage.loc.y, that.mouse_loc.x - mage.loc.x),
             deg = null,
-            mage_center = mage.center();
-            
+            mage_center = mage.center(),
+            target = null;
+        
+        target = new Point( mage_center.x + (length * (that.mouse_loc.x - mage_center.x)), 
+                            mage_center.y + (length * (that.mouse_loc.y - mage_center.y)))
         deg =  Math.round(((bearing / (Math.PI * 2)) * 360))
         
         context.fillStyle = "red";
-        context.beginPath()
-        context.moveTo(mage_center.x, mage_center.y);
-        context.lineTo(mouse_loc.x, mouse_loc.y);
+        context.beginPath();
+        context.moveTo(mage_center.x, mage_center.y);   
+        context.lineTo(target.x, target.y);
+        
         
         if(deg > 0 && deg < 90) {
             deg = deg / 100
-            context.lineTo(mouse_loc.x - (beam_width * deg), mouse_loc.y - (beam_width * (.9 - deg)));
+            
+            context.lineTo(target.x - (beam_width * deg), target.y - (beam_width * (.9 - deg)));
             context.lineTo(mage_center.x - (beam_width * deg), mage_center.y - (beam_width * (.9 - deg)));
         } else if(deg > 90) {
             deg = (deg - 90) / 100
-            context.lineTo(mouse_loc.x - (beam_width * (.9 - deg)), mouse_loc.y + (beam_width * deg));
+            context.lineTo(target.x - (beam_width * (.9 - deg)), target.y + (beam_width * deg));
             context.lineTo(mage_center.x - (beam_width * (.9 - deg)), mage_center.y + (beam_width * deg));   
         } else if(deg < 0 && deg > -90) {
             deg = deg / 100 * -1
-            context.lineTo(mouse_loc.x + (beam_width * deg), mouse_loc.y - (beam_width * (.9 - deg)));
+            context.lineTo(target.x + (beam_width * deg), target.y - (beam_width * (.9 - deg)));
             context.lineTo(mage_center.x + (beam_width * deg), mage_center.y - (beam_width * (.9 - deg)));
         } else if(deg < -90) {
             deg = (deg + 90) / 100 * -1
-            
-            context.lineTo(mouse_loc.x + (beam_width * (.9 - deg)), mouse_loc.y + (beam_width * deg));
+            context.lineTo(target.x + (beam_width * (.9 - deg)), target.y + (beam_width * deg));
             context.lineTo(mage_center.x + (beam_width * (.9 - deg)), mage_center.y + (beam_width * deg));
         }
         
         context.lineTo(mage_center.x, mage_center.y)
         context.fill();
         
+        if(length < 100) {
+            length += .1;
+        } 
     }
 }
