@@ -265,12 +265,25 @@ var Beam = function(mouse_loc, mage) {
     
     this.draw = function(context) {
         var mage_center = mage.center(),
-            bearing     = -1 * Math.atan2(that.mouse_loc.y - mage.loc.y, that.mouse_loc.x - mage.loc.x),
-            deg         = null;
-        deg =  Math.round(((bearing / (Math.PI * 2)) * 360))
+            bearing     = Math.atan2(that.mouse_loc.y - mage_center.y, that.mouse_loc.x - mage_center.x),
+            deg         = null,
+            edge_target = null;
         
-        var target = new Point( mage_center.x + (length * (that.mouse_loc.x - mage_center.x)), 
-                                mage_center.y + (length * (that.mouse_loc.y - mage_center.y)))
+        var distance = Math.sqrt(Math.pow(that.mouse_loc.x - mage_center.x, 2) + Math.pow(that.mouse_loc.y - mage_center.y, 2));
+        
+        console.log(500/distance)
+        
+        
+        deg =  ((bearing / (Math.PI * 2)) * 360) / 90
+        console.log(deg);
+        if(deg > 0 && deg < .9) {
+            edge_target = new Point( (1 - deg) * 800, deg * 2.2 * 600)
+        } else if(deg < 0 && deg > -.9) {
+            edge_target = new Point( (1 - deg) * 800, deg * 600)
+        }
+            
+        var target = new Point( mage_center.x + length * (edge_target.x - mage_center.x), 
+                                mage_center.y + length * (edge_target.y - mage_center.y))
         
         context.strokeStyle = 'red';
         context.beginPath();
