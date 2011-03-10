@@ -97,7 +97,9 @@ var GameManager = function(play_area_id) {
     var mouse_dragging = false,
         beam_firing = false;
     play_area.mousedown(function() {mouse_dragging = true;})
-    play_area.mouseup(function() {mouse_dragging = false;})
+    play_area.mouseup(function() {
+        mouse_dragging = false;
+    })
     play_area.mousemove(function(e) {
         var x = Math.floor((e.pageX-play_area.offset().left-400)),
             y = Math.floor((e.pageY-play_area.offset().top -300));
@@ -115,6 +117,7 @@ var GameManager = function(play_area_id) {
     $('body').keydown(function(event) {
         //console.log(event.which);
         if(event.which == 49) {
+            local_mage.target_loc = null;
             local_mage.fire_beam(mouse_loc);
             beam_firing = true;
         }
