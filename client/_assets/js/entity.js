@@ -118,7 +118,7 @@ var Mage = function() {
     var that            = this;
     
     this.target_loc      = null; // Point the user wants to move to
-    this.mov_speed       = 11,  // Default movement speed
+    this.mov_speed       = 8,  // Default movement speed
     this.health          = 75,   // Starting health
     this.shield          = 0;    // Starting shield    
     
@@ -143,12 +143,7 @@ var Mage = function() {
     }
     
     this.draw = function(context) {
-        if(that.beam != null) {
-            that.beam.draw(context);
-        }
-        that.bursts.forEach(function(burst) {
-            burst.draw(context);
-        })
+        
         
         if(that.target_loc != null) {
             
@@ -162,7 +157,12 @@ var Mage = function() {
                                       that.loc.y + ((that.mov_speed / distance) * (that.target_loc.y - that.loc.y)));
             }
         }
-        
+        if(that.beam != null) {
+            that.beam.draw(context);
+        }
+        that.bursts.forEach(function(burst) {
+            burst.draw(context);
+        })
         context.fillStyle = that.color
         context.fillRect(that.loc.x, that.loc.y, that.dim.width, that.dim.height);
         draw_health_bar(context);
@@ -258,52 +258,33 @@ var Beam = function(mouse_loc, mage) {
         max_duration    = 3,
         beam_width      = 7,
         length          = .1,
-        propogation     = 100,
-        MAX_LENGTH      = 500;    
+        propogation     = .07;
     
     this.mouse_loc = mouse_loc
     this.types.push('beam');
     
     this.draw = function(context) {
-        
-        var bearing     = -1 * Math.atan2(that.mouse_loc.y - mage.loc.y, that.mouse_loc.x - mage.loc.x),
-            deg         = null,
-            mage_center = mage.center(),
-            target      = null;
-        
-        target = new Point( mage_center.x + (length * (that.mouse_loc.x - mage_center.x)), 
-                            mage_center.y + (length * (that.mouse_loc.y - mage_center.y)))
+        var mage_center = mage.center(),
+            bearing     = -1 * Math.atan2(that.mouse_loc.y - mage.loc.y, that.mouse_loc.x - mage.loc.x),
+            deg         = null;
         deg =  Math.round(((bearing / (Math.PI * 2)) * 360))
         
-        context.fillStyle = "red";
+        var target = new Point( mage_center.x + (length * (that.mouse_loc.x - mage_center.x)), 
+                                mage_center.y + (length * (that.mouse_loc.y - mage_center.y)))
+        
+        context.strokeStyle = 'red';
         context.beginPath();
-        context.moveTo(mage_center.x, mage_center.y);   
-        context.lineTo(target.x, target.y);
-        
-        
-        if(deg > 0 && deg < 90) {
-            deg = deg / 100
-            context.lineTo(target.x - (beam_width * deg), target.y - (beam_width * (.9 - deg)));
-            context.lineTo(mage_center.x - (beam_width * deg), mage_center.y - (beam_width * (.9 - deg)));
-        } else if(deg > 90) {
-            deg = (deg - 90) / 100
-            context.lineTo(target.x - (beam_width * (.9 - deg)), target.y + (beam_width * deg));
-            context.lineTo(mage_center.x - (beam_width * (.9 - deg)), mage_center.y + (beam_width * deg));   
-        } else if(deg < 0 && deg > -90) {
-            deg = deg / 100 * -1
-            context.lineTo(target.x + (beam_width * deg), target.y - (beam_width * (.9 - deg)));
-            context.lineTo(mage_center.x + (beam_width * deg), mage_center.y - (beam_width * (.9 - deg)));
-        } else if(deg < -90) {
-            deg = (deg + 90) / 100 * -1
-            context.lineTo(target.x + (beam_width * (.9 - deg)), target.y + (beam_width * deg));
-            context.lineTo(mage_center.x + (beam_width * (.9 - deg)), mage_center.y + (beam_width * deg));
-        }
-        
-        context.lineTo(mage_center.x, mage_center.y)
-        context.fill();
+        context.moveTo(mage_center.x,mage_center.y);
+        context.lineTo(target.x,target.y);
+        context.lineTo(mage_center.x,mage_center.y);
+        context.closePath();
+        context.lineWidth = 10;
+        context.stroke();
+        context.lineWidth = 1;
         
         if(length < 100) {
-            length += .1;
-        } 
+            length += propogation;
+        }
+        
     }
 }

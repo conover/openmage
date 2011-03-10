@@ -94,7 +94,8 @@ var GameManager = function(play_area_id) {
     entity_manager.add_entity(local_mage);
     
     // Event Handlers for moving the local mage
-    var mouse_dragging
+    var mouse_dragging = false,
+        beam_firing = false;
     play_area.mousedown(function() {mouse_dragging = true;})
     play_area.mouseup(function() {mouse_dragging = false;})
     play_area.mousemove(function(e) {
@@ -102,23 +103,27 @@ var GameManager = function(play_area_id) {
             y = Math.floor((e.pageY-play_area.offset().top -300));
         
         mouse_loc = new Point(x, y);
-        if(mouse_dragging) {
+        if(mouse_dragging && !beam_firing) {
             local_mage.move(mouse_loc);
         }
     });
     play_area.click(function(e) {
-        local_mage.move(mouse_loc);
+        if(!beam_firing) {
+            local_mage.move(mouse_loc);
+        }
     });
     $('body').keydown(function(event) {
         //console.log(event.which);
         if(event.which == 49) {
             local_mage.fire_beam(mouse_loc);
+            beam_firing = true;
         }
     });
     $('body').keyup(function(event) {
         //console.log(event.which);
         if(event.which == 49) {
             local_mage.stop_beam();
+            beam_firing = false;
         }
     });
     
