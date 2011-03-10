@@ -142,6 +142,13 @@ var Mage = function() {
     }
     
     this.draw = function(context) {
+        if(that.beam != null) {
+            that.beam.draw(context);
+        }
+        that.bursts.forEach(function(burst) {
+            burst.draw(context);
+        })
+        
         
         var draw_loc = new Point(0, 0); // New location to draw the mage
         
@@ -222,12 +229,6 @@ var Mage = function() {
         draw_health_bar(context);
         draw_shield_bar(context);
         draw_elements(context);
-        if(that.beam != null) {
-            that.beam.draw(context);
-        }
-        that.bursts.forEach(function(burst) {
-            burst.draw(context);
-        })
     } 
     
     
@@ -281,10 +282,14 @@ var Mage = function() {
         }
     
     }
+    
+    this. center = function() {
+        return new Point(that.loc.x + Math.floor(that.dim.width/2), that.loc.y + Math.floor(that.dim.height/2))    
+    }
     this.move = function(mouse_loc) {that.target_loc = mouse_loc;}
     
     this.fire_beam = function(mouse_loc) {
-        that.beam = new Beam(mouse_loc, that.loc);
+        that.beam = new Beam(mouse_loc, that);
     }
     this.stop_beam = function() {
         if(that.beam != null) {
@@ -304,55 +309,47 @@ var Projectile = function() {
     this.types.push('projectile');
 }
 
-var Beam = function(target_loc, mage_loc) {
+var Beam = function(mouse_loc, mage) {
     Projectile.call(this);
     var that = this,
         max_duration = 3,
-        beam_width = 15;
-    
-    // Can be updated while firing
-    this.target_loc = target_loc;
-    this.mage_loc   = mage_loc;
+        beam_width = 7;
     
     this.types.push('beam');
     
     this.draw = function(context) {
         
-        var bearing = -1 * Math.atan2(that.target_loc.y - that.mage_loc.y, that.target_loc.x - that.mage_loc.x);
-        
-        var smooth_factor = Math.abs(bearing);
-        if(smooth_factor != 0) {
-            while(smooth_factor > 1) {
-                smooth_factor -= 1;
-            }
-        }
-        //console.log(bearing);
+        var bearing = -1 * Math.atan2(mouse_loc.y - mage.loc.y, mouse_loc.x - mage.loc.x),
+            deg = null,
+            mage_center = mage.center();
+            
+        deg =  Math.round(((bearing / (Math.PI * 2)) * 360))
         
         context.fillStyle = "red";
         context.beginPath()
-        context.moveTo(that.mage_loc.x, that.mage_loc.y);
-        context.lineTo(that.target_loc.x, that.target_loc.y);
+        context.moveTo(mage_center.x, mage_center.y);
+        context.lineTo(mouse_loc.x, mouse_loc.y);
         
-        if(bearing > 0 && bearing < 1) {
-            context.lineTo(that.target_loc.x + beam_width * smooth_factor, that.target_loc.y + beam_width)
-            context.lineTo(that.mage_loc.x + beam_width * smooth_factor, that.mage_loc.y + beam_width)
-        } else if(bearing > 1 && bearing < (Math.PI / 2)) {
-            //smooth_factor = smooth_factor + .5
+        if(deg > 0 && deg < 90) {
+            deg = deg / 100
+            context.lineTo(mouse_loc.x - (beam_width * deg), mouse_loc.y - (beam_width * (.9 - deg)));
+            context.lineTo(mage_center.x - (beam_width * deg), mage_center.y - (beam_width * (.9 - deg)));
+        } else if(deg > 90) {
+            deg = (deg - 90) / 100
+            context.lineTo(mouse_loc.x - (beam_width * (.9 - deg)), mouse_loc.y + (beam_width * deg));
+            context.lineTo(mage_center.x - (beam_width * (.9 - deg)), mage_center.y + (beam_width * deg));   
+        } else if(deg < 0 && deg > -90) {
+            deg = deg / 100 * -1
+            context.lineTo(mouse_loc.x + (beam_width * deg), mouse_loc.y - (beam_width * (.9 - deg)));
+            context.lineTo(mage_center.x + (beam_width * deg), mage_center.y - (beam_width * (.9 - deg)));
+        } else if(deg < -90) {
+            deg = (deg + 90) / 100 * -1
             
-            console.log(smooth_factor);
-            context.lineTo(that.target_loc.x + (beam_width * (smooth_factor + 1)), that.target_loc.y + beam_width * (smooth_factor + .5))
-            context.lineTo(that.mage_loc.x + beam_width, that.mage_loc.y + beam_width * smooth_factor)
-        } else if(bearing < 0 && bearing > -1) {
-            context.lineTo(that.target_loc.x - beam_width * smooth_factor, that.target_loc.y + beam_width)
-            context.lineTo(that.mage_loc.x - beam_width * smooth_factor, that.mage_loc.y + beam_width)
-        } else {
-            context.lineTo(that.target_loc.x + beam_width, that.target_loc.y + beam_width)
-            context.lineTo(that.mage_loc.x + beam_width, that.mage_loc.y + beam_width)
+            context.lineTo(mouse_loc.x + (beam_width * (.9 - deg)), mouse_loc.y + (beam_width * deg));
+            context.lineTo(mage_center.x + (beam_width * (.9 - deg)), mage_center.y + (beam_width * deg));
         }
         
-        
-        
-        context.lineTo(that.mage_loc.x, that.mage_loc.y)
+        context.lineTo(mage_center.x, mage_center.y)
         context.fill();
         
     }
