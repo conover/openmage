@@ -96,9 +96,16 @@ var GameManager = function(play_area_id) {
     // Event Handlers for moving the local mage
     var mouse_dragging = false,
         beam_firing = false;
-    play_area.mousedown(function() {mouse_dragging = true;})
+    play_area.mousedown(function() {
+        mouse_dragging = true;
+        if(!beam_firing) {
+            local_mage.move(mouse_loc);
+        }
+    })
     play_area.mouseup(function() {
+        console.log('mouse up')
         mouse_dragging = false;
+        local_mage.target_loc = null;
     })
     play_area.mousemove(function(e) {
         var x = Math.floor((e.pageX-play_area.offset().left-400)),
@@ -106,11 +113,6 @@ var GameManager = function(play_area_id) {
         
         mouse_loc = new Point(x, y);
         if(mouse_dragging && !beam_firing) {
-            local_mage.move(mouse_loc);
-        }
-    });
-    play_area.click(function(e) {
-        if(!beam_firing) {
             local_mage.move(mouse_loc);
         }
     });
