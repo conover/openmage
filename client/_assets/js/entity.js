@@ -259,18 +259,31 @@ var Beam = function(mouse_loc, mage) {
         max_duration    = 3,
         beam_width      = 7,
         length          = .001,
-        propogation     = .013;
+        propogation     = .013,
+        
+        bearing         = null,
+        rotate_speed    = .013;
     
     this.mouse_loc = mouse_loc
     this.types.push('beam');
     
     this.draw = function(context) {
         
-        var mage_center = mage.center(),
-            bearing     = ((Math.PI / 2) - Math.atan2(that.mouse_loc.y - mage_center.y, that.mouse_loc.x - mage_center.x)),
-            deg         = null,
-            edge_target = null,
-            target      = null;
+        var mage_center         = mage.center(),
+            current_bearing     = ((Math.PI / 2) - Math.atan2(that.mouse_loc.y - mage_center.y, that.mouse_loc.x - mage_center.x)),
+            edge_target         = null,
+            target              = null;
+        
+        if(bearing == null) {
+            bearing = current_bearing;    
+        }
+        if( Math.abs(bearing - current_bearing) > rotate_speed) {            
+            if(current_bearing > bearing) { // Clockwise
+                bearing += rotate_speed;
+            } else { // Counter-clockwise
+                bearing -= rotate_speed;
+            }
+        }
         
         edge_target = new Point(Math.sin(bearing) * 1000, Math.cos(bearing) * 1000)
         
