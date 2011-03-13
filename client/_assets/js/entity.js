@@ -257,33 +257,24 @@ var Beam = function(mouse_loc, mage) {
     var that = this,
         max_duration    = 3,
         beam_width      = 7,
-        length          = .1,
-        propogation     = .07;
+        length          = .001,
+        propogation     = .013;
     
     this.mouse_loc = mouse_loc
     this.types.push('beam');
     
     this.draw = function(context) {
+        
         var mage_center = mage.center(),
-            bearing     = Math.atan2(that.mouse_loc.y - mage_center.y, that.mouse_loc.x - mage_center.x),
+            bearing     = ((Math.PI / 2) - Math.atan2(that.mouse_loc.y - mage_center.y, that.mouse_loc.x - mage_center.x)),
             deg         = null,
-            edge_target = null;
+            edge_target = null,
+            target      = null;
         
-        var distance = Math.sqrt(Math.pow(that.mouse_loc.x - mage_center.x, 2) + Math.pow(that.mouse_loc.y - mage_center.y, 2));
+        edge_target = new Point(Math.sin(bearing) * 1000, Math.cos(bearing) * 1000)
         
-        console.log(500/distance)
-        
-        
-        deg =  ((bearing / (Math.PI * 2)) * 360) / 90
-        console.log(deg);
-        if(deg > 0 && deg < .9) {
-            edge_target = new Point( (1 - deg) * 800, deg * 2.2 * 600)
-        } else if(deg < 0 && deg > -.9) {
-            edge_target = new Point( (1 - deg) * 800, deg * 600)
-        }
-            
-        var target = new Point( mage_center.x + length * (edge_target.x - mage_center.x), 
-                                mage_center.y + length * (edge_target.y - mage_center.y))
+        target = new Point( mage_center.x + length * (edge_target.x - mage_center.x), 
+                            mage_center.y + length * (edge_target.y - mage_center.y))
         
         context.strokeStyle = 'red';
         context.beginPath();
@@ -295,9 +286,9 @@ var Beam = function(mouse_loc, mage) {
         context.stroke();
         context.lineWidth = 1;
         
+        
         if(length < 100) {
             length += propogation;
-        }
-        
+        }   
     }
 }
