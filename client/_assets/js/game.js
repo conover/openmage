@@ -132,7 +132,7 @@ var GameManager = function(play_area_id) {
             y = Math.floor((event.pageY-play_area.offset().top -300));
         
         mouse_loc = new Point(x, y);
-        if(mouse_dragging && !event.shiftKey) {
+        if(mouse_dragging && !beam_firing) {
             local_mage.move(mouse_loc);
         } else if(beam_firing) {
             local_mage.fire_beam(mouse_loc);   
