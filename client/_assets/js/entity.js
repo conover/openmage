@@ -131,6 +131,7 @@ var Mage = function() {
     
     this.types.push('mage')
     
+    this.element_stack = [];
     
     this.set_color = function(color) {
         if(color.constructor !== String) {
@@ -285,7 +286,6 @@ var Beam = function(mouse_loc, mage) {
         context.lineWidth = 10;
         context.stroke();
         context.lineWidth = 1;
-        
         
         if(length < 100) {
             length += propogation;

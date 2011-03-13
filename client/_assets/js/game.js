@@ -18,9 +18,22 @@ var GameManager = function(play_area_id) {
         play_area       = null,
         context         = null,
         
-        mouse_loc       = null; // Current mouse location
+        mouse_loc       = new Point(0,0), // Current mouse location
         
-    
+        element_pressed = null,
+        ELEMENT_KEYDOWN_KEYS    = [81, 87, 69, 82, 65, 83, 68, 70];
+        ELEMENT_KEYPRESS_KEYS   = [113, 119, 101, 114, 97, 115, 100, 102],
+        ELEMENT_LETTERS = ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F'];
+        // Q 113
+        // W 119
+        // E 101
+        // R 114
+        // - 
+        // A 97
+        // S 115
+        // D 100
+        // F 102
+        
     
     // Connect to the WebSocket server
     if ("WebSocket" in window) {
@@ -96,46 +109,73 @@ var GameManager = function(play_area_id) {
     // Event Handlers for moving the local mage
     var mouse_dragging = false,
         beam_firing = false;
-    play_area.mousedown(function() {
+    play_area.mousedown(function(event) {
         mouse_dragging = true;
-        if(!beam_firing) {
+        if(event.shiftKey) {
+            local_mage.target_loc = null;
+            local_mage.fire_beam(mouse_loc);
+            beam_firing = true;
+        } else {
             local_mage.move(mouse_loc);
         }
     })
     play_area.mouseup(function() {
         mouse_dragging = false;
         local_mage.target_loc = null;
+        if(beam_firing) {
+            local_mage.stop_beam();
+            beam_firing = false;
+        }
     })
-    play_area.mousemove(function(e) {
-        var x = Math.floor((e.pageX-play_area.offset().left-400)),
-            y = Math.floor((e.pageY-play_area.offset().top -300));
+    play_area.mousemove(function(event) {
+        var x = Math.floor((event.pageX-play_area.offset().left-400)),
+            y = Math.floor((event.pageY-play_area.offset().top -300));
         
         mouse_loc = new Point(x, y);
-        if(mouse_dragging && !beam_firing) {
+        if(mouse_dragging && !event.shiftKey) {
             local_mage.move(mouse_loc);
+        } else if(beam_firing) {
+            local_mage.fire_beam(mouse_loc);   
         }
     });
     $('body').keydown(function(event) {
         //console.log(event.which);
-        if(event.which == 49) {
-            local_mage.target_loc = null;
-            local_mage.fire_beam(mouse_loc);
-            beam_firing = true;
+        //if(event.which == 49) { // `1` Key
+        //    local_mage.target_loc = null;
+        //    local_mage.fire_beam(mouse_loc);
+        //    beam_firing = true;
+        //} else 
+        if(ELEMENT_KEYDOWN_KEYS.indexOf(event.which) > -1) {
+            element_pressed = ELEMENT_LETTERS[ELEMENT_KEYDOWN_KEYS.indexOf(event.which)];
         }
     });
     $('body').keyup(function(event) {
         //console.log(event.which);
-        if(event.which == 49) {
-            local_mage.stop_beam();
-            beam_firing = false;
-        }
+        //if(event.which == 49) {
+        //    local_mage.stop_beam();
+        //    beam_firing = false;
+        //}
+        element_pressed = null;
     });
-    
+    $('body').keypress(function(event) {
+        //console.log(event.which);
+        // Q 113
+        // W 119
+        // E 101
+        // R 114
+        // - 
+        // A 97
+        // S 115
+        // D 100
+        // F 102
+            
+    });
     
     
     var frame_count = 0
     function game_loop() {
         context.clearRect(-400,-300, 800,600);
+        draw_global_elements();
         entity_manager.maintain(context, ws_queue);
         if(ws_queue.length > WS_QUEUE_FLUSH_LEN || frame_count > WS_FRAME_TIMEOUT) {
             flush_ws_queue();
@@ -145,4 +185,58 @@ var GameManager = function(play_area_id) {
         game_timer = setTimeout(game_loop, tick_duration);
     }
     game_loop()
+    
+    function draw_global_elements() {
+        // Elements drawn in the bottom left to incidate pressing
+        // QWER
+        // ASDF
+        var top_elements    =   [{  letter:'Q',   color: 'rgba(0,0,255,.5)'},
+                                {   letter:'W',   color: 'rgba(0,255,0,.5)'},
+                                {   letter:'E',   color: 'rgba(255,255,0,.5)'},
+                                {   letter:'R',   color: 'rgba(100,175,255,.5)'},],
+            bottom_elements =   [{  letter:'A',   color: 'rgba(150,0,255,.5)'},
+                                {   letter:'S',   color: 'rgba(255,0,0,.5)'},
+                                {   letter:'D',   color: 'rgba(80,80,60,.5)'},
+                                {   letter:'F',   color: 'rgba(255,175,0,.5)'},],
+            bottom_left     =   new Point(-400, 300);
+        
+        
+        for(var i = 0; i < 4; i++ ) {
+            
+            var vert_location   = new Point(bottom_left.x + 30, bottom_left.y - 20),
+                bottom_element  = bottom_elements[i],
+                top_element     = top_elements[i];
+            [bottom_element,top_element].forEach(function(element) {
+                
+                // Draw the element letter
+                if(element_pressed == element.letter) {
+                    context.font = 'bold 15px "Courier New"';   
+                } else {
+                    context.font = 'normal 15px "Courier New"';
+                }
+                context.fillStyle = 'black';
+                context.fillText(element.letter, vert_location.x + (i * 32), vert_location.y);
+                
+                // Draw the element circle                
+                if(element_pressed == element.letter) {
+                    context.fillStyle = element.color.slice(0, element.color.length - 3) + '1)';
+                    context.strokeStyle = 'rgba(100,100,100,1)';
+                } else {
+                    context.strokeStyle = 'rgba(100,100,100,.5)';
+                    context.fillStyle = element.color
+                }
+                context.beginPath();
+                if(i == 0) {
+                    context.arc(vert_location.x + 21, vert_location.y + 5 , 10, 0, Math.PI * 2, true);
+                } else {
+                    context.arc(vert_location.x + (i * 32) + 19, vert_location.y + 5 , 10, 0, Math.PI * 2, true);
+                }
+                context.closePath();
+                context.fill();
+                context.stroke();
+                vert_location.y = vert_location.y - 26;
+                vert_location.x = vert_location.x - 19;
+            })
+        }
+    }
 }
