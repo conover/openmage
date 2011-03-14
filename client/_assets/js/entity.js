@@ -48,7 +48,8 @@ var EntityManager = function() {
 
 var Entity = function() { // Base from which all entities inherit
     MageObj.call(this);
-    var that        = this;
+    var that            = this;
+    
     
     this.id         = null; // Assigned by the entity manager
     this.loc        = new Point(0, 0);
@@ -131,43 +132,8 @@ var Mage = function() {
     
     this.types.push('mage')
     
-    element_stack = [];
-    
-    this.add_element = function(element) {
-        if(element_stack.length < 5) { // Max allowed elements
-            var last_element = null;
-            if(element_stack.length > 0) {
-                last_element = element_stack[element_stack.length - 1];
-                
-                if( (element == this.ELEMENT_WATER && last_element == this.ELEMENT_COLD) ||
-                        (element == this.ELEMENT_COLD && last_element == this.ELEMENT_WATER)){
-                    element_stack.push(ELEMENT_ICE);
-                } else if( (element == this.ELEMENT_WATER && last_element == this.ELEMENT_FIRE) ||
-                            (element == this.ELEMENT_FIRE && last_element == this.ELEMENT_WATER)) {
-                    element_stack.push(ELEMENT_STEAM);
-                } else if( (element == this.ELEMENT_WATER && last_element == this.ELEMENT_LIGHTNING) ||
-                                (element == this.ELEMENT_LIGHTNING && last_element == this.ELEMENT_WATER)) {
-                    element_stack.pop()
-                } else if( (element == this.ELEMENT_LIFE && last_element == this.ELEMENT_ARCANE) ||
-                                (element == this.ELEMENT_ARCANE && last_element == this.ELEMENT_LIFE)) {
-                    element_stack.pop()
-                } else if( (element == this.ELEMENT_COLD && last_element == this.ELEMENT_FIRE) ||
-                                (element == this.ELEMENT_FIRE && last_element == this.ELEMENT_COLD)) {
-                    element_stack.pop()
-                } else if( (element == this.ELEMENT_LIGHTNING && last_element == this.ELEMENT_EARTH) ||
-                                (element == this.ELEMENT_EARTH && last_element == this.ELEMENT_LIGHTNING) ||
-                                    (element == this.ELEMENT_LIGHTNING && last_element == this.ELEMENT_WATER) ||
-                                        (element == this.ELEMENT_WATER && last_element == this.ELEMENT_LIGHTNING)) {
-                    element_stack.pop()
-                } else {
-                    element_stack.push(element);                           
-                }                            
-            } else {
-                element_stack.push(element);   
-            }
-        }
-    }
-    
+    this.element_stack = [];
+        
     this.set_color = function(color) {
         if(color.constructor !== String) {
             throw 'Color must be a string'
@@ -244,11 +210,17 @@ var Mage = function() {
         // electric
         
         for(var i = 0; i < 5;i++) {
-        
+            
+            var element = that.element_stack[i];
+            
             vert_location = that.loc.x - Math.round(that.dim.width / 2) - 5
             
             context.strokeStyle = 'rgba(100,100,100,.5)';
-            context.fillStyle = 'rgba(175,175,175,.3)';
+            if(typeof(element) != 'undefined') {
+                context.fillStyle = element.color.slice(0, element.color.length - 3) + '1)';;
+            } else {
+                context.fillStyle = 'rgba(175,175,175,.3)';
+            }
             context.beginPath();
             context.arc(vert_location + (i * 10.3), that.loc.y + 57 , 4, 0, Math.PI * 2, true);
             context.closePath();
@@ -273,6 +245,7 @@ var Mage = function() {
     this.stop_beam = function() {
         if(that.beam != null) {
             that.beam = null;
+            that.element_stack = [];
         }
     }
     

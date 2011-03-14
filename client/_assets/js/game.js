@@ -99,7 +99,7 @@ var GameManager = function(play_area_id) {
                                     },
         ELEMENT_STEAM        = new function() {
                                         this.id = 8
-                                        this.color  = 'rgba(255,175,0,.5)';
+                                        this.color  = 'rgba(250,250,250,.5)';
                                         this.letter = null
                                         this.keydown_key = null;
                                         this.keypress_key = null;
@@ -107,7 +107,7 @@ var GameManager = function(play_area_id) {
                                      },
         ELEMENT_ICE         = new function() {
                                         this.id = 9
-                                        this.color  = 'rgba(255,175,0,.5)';
+                                        this.color  = 'rgba(135,195,222,.5)';
                                         this.letter = null
                                         this.keydown_key = null;
                                         this.keypress_key = null;
@@ -274,32 +274,67 @@ var GameManager = function(play_area_id) {
         // D 100
         // F 102
         
+        var element = null;
         switch(event.which) {
             case 113:
-                local_mage.add_element(local_mage.ELEMENT_WATER);
-                console.log(event.which);
+                element = ELEMENT_WATER;
                 break;
             case 119:
-                local_mage.add_element(local_mage.ELEMENT_LIFE);
+                element = ELEMENT_LIFE;
                 break;
             case 101:
-                local_mage.add_element(local_mage.ELEMENT_SHIELD);
+                element = ELEMENT_SHIELD;
                 break;
             case 114:
-                local_mage.add_element(local_mage.ELEMENT_COLD);
+                element = ELEMENT_COLD;
                 break
             case 97:
-                local_mage.add_element(local_mage.ELEMENT_LIGHTNING);
+                element = ELEMENT_LIGHTNING;
                 break;
             case 115:
-                local_mage.add_element(local_mage.ELEMENT_ARCANE);
+                element = ELEMENT_ARCANE;
                 break;
             case 100:
-                local_mage.add_element(local_mage.ELEMENT_EARTH);
+                element = ELEMENT_EARTH;
                 break;
             case 102:
-                local_mage.add_element(local_mage.ELEMENT_FIRE);
-                break
+                element = ELEMENT_FIRE;
+                break;
+        }
+        
+        if(local_mage.element_stack.length < 5) { // Max allowed elements
+            var last_element = null;
+            if(local_mage.element_stack.length > 0) {
+                last_element = local_mage.element_stack[local_mage.element_stack.length - 1];
+                
+                if( (element == ELEMENT_WATER && last_element == ELEMENT_COLD) ||
+                        (element == ELEMENT_COLD && last_element == ELEMENT_WATER)){
+                    local_mage.element_stack.pop()
+                    local_mage.element_stack.push(ELEMENT_ICE);
+                } else if( (element == ELEMENT_WATER && last_element == ELEMENT_FIRE) ||
+                            (element == ELEMENT_FIRE && last_element == ELEMENT_WATER)) {
+                    local_mage.element_stack.pop()
+                    local_mage.element_stack.push(ELEMENT_STEAM);
+                } else if( (element == ELEMENT_WATER && last_element == ELEMENT_LIGHTNING) ||
+                                (element == ELEMENT_LIGHTNING && last_element == ELEMENT_WATER)) {
+                    local_mage.element_stack.pop()
+                } else if( (element == ELEMENT_LIFE && last_element == ELEMENT_ARCANE) ||
+                                (element == ELEMENT_ARCANE && last_element == ELEMENT_LIFE)) {
+                    local_mage.element_stack.pop()
+                } else if( (element == ELEMENT_COLD && last_element == ELEMENT_FIRE) ||
+                                (element == ELEMENT_FIRE && last_element == ELEMENT_COLD)) {
+                    local_mage.element_stack.pop()
+                } else if( (element == ELEMENT_LIGHTNING && last_element == ELEMENT_EARTH) ||
+                                (element == ELEMENT_EARTH && last_element == ELEMENT_LIGHTNING) ||
+                                    (element == ELEMENT_LIGHTNING && last_element == ELEMENT_WATER) ||
+                                        (element == ELEMENT_WATER && last_element == ELEMENT_LIGHTNING)) {
+                    local_mage.element_stack.pop()
+                } else {
+                    local_mage.element_stack.push(element);                           
+                }                            
+            } else {
+                local_mage.element_stack.push(element);   
+            }
         }
     });
     
@@ -327,8 +362,8 @@ var GameManager = function(play_area_id) {
         for(var i = 0; i < 4; i++ ) {
             
             var vert_location   = new Point(bottom_left.x + 30, bottom_left.y - 20),
-                bottom_element  = ELEMENTS[i],
-                top_element     = ELEMENTS[i+4];
+                top_element     = ELEMENTS[i],
+                bottom_element  = ELEMENTS[i+4];
                 
             [bottom_element,top_element].forEach(function(element) {
                 
