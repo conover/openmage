@@ -146,7 +146,6 @@ var Mage = function() {
     
     this.draw = function(context) {
         
-        
         if(that.target_loc != null) {
             
             var distance = Math.sqrt(Math.pow(that.target_loc.x - that.loc.x, 2) + Math.pow(that.target_loc.y - that.loc.y, 2));
@@ -155,8 +154,8 @@ var Mage = function() {
             if(distance < that.dim.width) {
                 that.target_loc = null;
             } else {
-                that.loc = new Point( that.loc.x + ((that.mov_speed / distance) * (that.target_loc.x - that.loc.x)), 
-                                      that.loc.y + ((that.mov_speed / distance) * (that.target_loc.y - that.loc.y)));
+                that.loc = new Point( that.loc.x + (((that.mov_speed - (that.element_stack.length * 1.1)) / distance) * (that.target_loc.x - that.loc.x)), 
+                                      that.loc.y + (((that.mov_speed - (that.element_stack.length * 1.1)) / distance) * (that.target_loc.y - that.loc.y)));
             }
         }
         if(that.beam != null) {
@@ -282,8 +281,6 @@ var Beam = function(mouse_loc, mage) {
             edge_target         = null,
             final_target        = null,
             target              = null;
-        
-        //console.log(current_bearing);
         
         if(bearing == null) {
             bearing = current_bearing;    
