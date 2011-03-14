@@ -21,9 +21,125 @@ var GameManager = function(play_area_id) {
         mouse_loc       = new Point(0,0), // Current mouse location
         
         element_pressed = null,
-        ELEMENT_KEYDOWN_KEYS    = [81, 87, 69, 82, 65, 83, 68, 70];
+        ELEMENTS        = null,
+        ELEMENT_KEYDOWN_KEYS    = [],//[81, 87, 69, 82, 65, 83, 68, 70],
+        ELEMENT_KEYPRESS_KEYS   = [],//[113, 119, 101, 114, 97, 115, 100, 102],
+        ELEMENT_LETTERS         = [],//['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F'],
+        ELEMENT_WATER       =  new function() {
+                                        this.id = 0
+                                        this.color  = 'rgba(0,0,255,.5)';
+                                        this.letter = 'Q'
+                                        this.keydown_key = 81;
+                                        this.keypress_key = 113;
+                                        this.level = 'top';
+                                        return this.id;
+                                    },
+        ELEMENT_LIFE        = new function() {
+                                        this.id = 1
+                                        this.color  = 'rgba(0,255,0,.5)';
+                                        this.letter = 'W'
+                                        this.keydown_key = 87;
+                                        this.keypress_key = 119;
+                                        this.level = 'top';
+                                        return this.id;
+                                    },
+        ELEMENT_SHIELD      = new function() {
+                                        this.id = 2
+                                        this.color  = 'rgba(255,255,0,.5)';
+                                        this.letter = 'E'
+                                        this.keydown_key = 69;
+                                        this.keypress_key = 101;
+                                        this.level = 'top';
+                                        return this.id;
+                                    },
+        ELEMENT_COLD        = new function() {
+                                        this.id = 3
+                                        this.color  = 'rgba(100,175,255,.5)';
+                                        this.letter = 'R'
+                                        this.keydown_key = 82;
+                                        this.keypress_key = 114;
+                                        this.level = 'top';
+                                        return this.id;
+                                    },
+        ELEMENT_LIGHTNING   = new function() {
+                                        this.id = 4
+                                        this.color  = 'rgba(150,0,255,.5)';
+                                        this.letter = 'A'
+                                        this.keydown_key = 65;
+                                        this.keypress_key = 97;
+                                        this.level = 'bottom';
+                                        return this.id;
+                                    },
+        ELEMENT_ARCANE      = new function() {
+                                        this.id = 5
+                                        this.color  = 'rgba(255,0,0,.5)';
+                                        this.letter = 'S'
+                                        this.keydown_key = 83;
+                                        this.keypress_key = 115;
+                                        this.level = 'bottom';
+                                        return this.id;
+                                     },
+        ELEMENT_EARTH       = new function() {
+                                        this.id = 6
+                                        this.color  = 'rgba(80,80,60,.5)';
+                                        this.letter = 'D'
+                                        this.keydown_key = 68;
+                                        this.keypress_key = 100;
+                                        this.level = 'bottom';
+                                        return this.id;
+                                    },
+        ELEMENT_FIRE        = new function() {
+                                        this.id = 7
+                                        this.color  = 'rgba(255,175,0,.5)';
+                                        this.letter = 'F'
+                                        this.keydown_key = 70;
+                                        this.keypress_key = 102;
+                                        this.level = 'bottom';
+                                        return this.id;
+                                    },
+        ELEMENT_STEAM        = new function() {
+                                        this.id = 8
+                                        this.color  = 'rgba(255,175,0,.5)';
+                                        this.letter = null
+                                        this.keydown_key = null;
+                                        this.keypress_key = null;
+                                        return this.id;
+                                     },
+        ELEMENT_ICE         = new function() {
+                                        this.id = 9
+                                        this.color  = 'rgba(255,175,0,.5)';
+                                        this.letter = null
+                                        this.keydown_key = null;
+                                        this.keypress_key = null;
+                                        return this.id;
+                                    };
+        ELEMENTS = [ELEMENT_WATER,ELEMENT_LIFE,ELEMENT_SHIELD,ELEMENT_COLD,
+                        ELEMENT_LIGHTNING, ELEMENT_ARCANE, ELEMENT_EARTH, ELEMENT_FIRE,
+                            ELEMENT_STEAM, ELEMENT_ICE]
+        ELEMENTS.forEach(function(element) {
+                if(element.keydown_key != null) {
+                    ELEMENT_KEYDOWN_KEYS.push(element.keydown_key);
+                }
+                if(element.keypress_key != null) {
+                    ELEMENT_KEYPRESS_KEYS.push(element.keypress_key);
+                }
+                if(element.letter != null) {
+                    ELEMENT_LETTERS.push(element.letter);
+                }
+        });
+        /*
+        ELEMENT_KEYDOWN_KEYS    = [81, 87, 69, 82, 65, 83, 68, 70],
         ELEMENT_KEYPRESS_KEYS   = [113, 119, 101, 114, 97, 115, 100, 102],
-        ELEMENT_LETTERS = ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F'];
+        ELEMENT_LETTERS = ['Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F'],
+        var top_elements    =   [{  letter:'Q',   color: 'rgba(0,0,255,.5)'},
+                                {   letter:'W',   color: 'rgba(0,255,0,.5)'},
+                                {   letter:'E',   color: 'rgba(255,255,0,.5)'},
+                                {   letter:'R',   color: 'rgba(100,175,255,.5)'},],
+            bottom_elements =   [{  letter:'A',   color: 'rgba(150,0,255,.5)'},
+                                {   letter:'S',   color: 'rgba(255,0,0,.5)'},
+                                {   letter:'D',   color: 'rgba(80,80,60,.5)'},
+                                {   letter:'F',   color: 'rgba(255,175,0,.5)'},],
+        */
         // Q 113
         // W 119
         // E 101
@@ -139,22 +255,11 @@ var GameManager = function(play_area_id) {
         }
     });
     $('body').keydown(function(event) {
-        //console.log(event.which);
-        //if(event.which == 49) { // `1` Key
-        //    local_mage.target_loc = null;
-        //    local_mage.fire_beam(mouse_loc);
-        //    beam_firing = true;
-        //} else 
         if(ELEMENT_KEYDOWN_KEYS.indexOf(event.which) > -1) {
             element_pressed = ELEMENT_LETTERS[ELEMENT_KEYDOWN_KEYS.indexOf(event.which)];
         }
     });
     $('body').keyup(function(event) {
-        //console.log(event.which);
-        //if(event.which == 49) {
-        //    local_mage.stop_beam();
-        //    beam_firing = false;
-        //}
         element_pressed = null;
     });
     $('body').keypress(function(event) {
@@ -168,7 +273,34 @@ var GameManager = function(play_area_id) {
         // S 115
         // D 100
         // F 102
-            
+        
+        switch(event.which) {
+            case 113:
+                local_mage.add_element(local_mage.ELEMENT_WATER);
+                console.log(event.which);
+                break;
+            case 119:
+                local_mage.add_element(local_mage.ELEMENT_LIFE);
+                break;
+            case 101:
+                local_mage.add_element(local_mage.ELEMENT_SHIELD);
+                break;
+            case 114:
+                local_mage.add_element(local_mage.ELEMENT_COLD);
+                break
+            case 97:
+                local_mage.add_element(local_mage.ELEMENT_LIGHTNING);
+                break;
+            case 115:
+                local_mage.add_element(local_mage.ELEMENT_ARCANE);
+                break;
+            case 100:
+                local_mage.add_element(local_mage.ELEMENT_EARTH);
+                break;
+            case 102:
+                local_mage.add_element(local_mage.ELEMENT_FIRE);
+                break
+        }
     });
     
     
@@ -190,22 +322,14 @@ var GameManager = function(play_area_id) {
         // Elements drawn in the bottom left to incidate pressing
         // QWER
         // ASDF
-        var top_elements    =   [{  letter:'Q',   color: 'rgba(0,0,255,.5)'},
-                                {   letter:'W',   color: 'rgba(0,255,0,.5)'},
-                                {   letter:'E',   color: 'rgba(255,255,0,.5)'},
-                                {   letter:'R',   color: 'rgba(100,175,255,.5)'},],
-            bottom_elements =   [{  letter:'A',   color: 'rgba(150,0,255,.5)'},
-                                {   letter:'S',   color: 'rgba(255,0,0,.5)'},
-                                {   letter:'D',   color: 'rgba(80,80,60,.5)'},
-                                {   letter:'F',   color: 'rgba(255,175,0,.5)'},],
-            bottom_left     =   new Point(-400, 300);
-        
+        var bottom_left     =   new Point(-400, 300);
         
         for(var i = 0; i < 4; i++ ) {
             
             var vert_location   = new Point(bottom_left.x + 30, bottom_left.y - 20),
-                bottom_element  = bottom_elements[i],
-                top_element     = top_elements[i];
+                bottom_element  = ELEMENTS[i],
+                top_element     = ELEMENTS[i+4];
+                
             [bottom_element,top_element].forEach(function(element) {
                 
                 // Draw the element letter

@@ -131,7 +131,42 @@ var Mage = function() {
     
     this.types.push('mage')
     
-    this.element_stack = [];
+    element_stack = [];
+    
+    this.add_element = function(element) {
+        if(element_stack.length < 5) { // Max allowed elements
+            var last_element = null;
+            if(element_stack.length > 0) {
+                last_element = element_stack[element_stack.length - 1];
+                
+                if( (element == this.ELEMENT_WATER && last_element == this.ELEMENT_COLD) ||
+                        (element == this.ELEMENT_COLD && last_element == this.ELEMENT_WATER)){
+                    element_stack.push(ELEMENT_ICE);
+                } else if( (element == this.ELEMENT_WATER && last_element == this.ELEMENT_FIRE) ||
+                            (element == this.ELEMENT_FIRE && last_element == this.ELEMENT_WATER)) {
+                    element_stack.push(ELEMENT_STEAM);
+                } else if( (element == this.ELEMENT_WATER && last_element == this.ELEMENT_LIGHTNING) ||
+                                (element == this.ELEMENT_LIGHTNING && last_element == this.ELEMENT_WATER)) {
+                    element_stack.pop()
+                } else if( (element == this.ELEMENT_LIFE && last_element == this.ELEMENT_ARCANE) ||
+                                (element == this.ELEMENT_ARCANE && last_element == this.ELEMENT_LIFE)) {
+                    element_stack.pop()
+                } else if( (element == this.ELEMENT_COLD && last_element == this.ELEMENT_FIRE) ||
+                                (element == this.ELEMENT_FIRE && last_element == this.ELEMENT_COLD)) {
+                    element_stack.pop()
+                } else if( (element == this.ELEMENT_LIGHTNING && last_element == this.ELEMENT_EARTH) ||
+                                (element == this.ELEMENT_EARTH && last_element == this.ELEMENT_LIGHTNING) ||
+                                    (element == this.ELEMENT_LIGHTNING && last_element == this.ELEMENT_WATER) ||
+                                        (element == this.ELEMENT_WATER && last_element == this.ELEMENT_LIGHTNING)) {
+                    element_stack.pop()
+                } else {
+                    element_stack.push(element);                           
+                }                            
+            } else {
+                element_stack.push(element);   
+            }
+        }
+    }
     
     this.set_color = function(color) {
         if(color.constructor !== String) {
@@ -270,18 +305,23 @@ var Beam = function(mouse_loc, mage) {
     this.draw = function(context) {
         
         var mage_center         = mage.center(),
-            current_bearing     = ((Math.PI / 2) - Math.atan2(that.mouse_loc.y - mage_center.y, that.mouse_loc.x - mage_center.x)),
+            current_bearing     = (Math.PI / 2) - Math.atan2(that.mouse_loc.y - mage_center.y, that.mouse_loc.x - mage_center.x),
             edge_target         = null,
+            final_target        = null,
             target              = null;
+        
+        //console.log(current_bearing);
         
         if(bearing == null) {
             bearing = current_bearing;    
         }
-        if( Math.abs(bearing - current_bearing) > rotate_speed) {            
-            if(current_bearing > bearing) { // Clockwise
-                bearing += rotate_speed;
-            } else { // Counter-clockwise
+        
+        if( Math.abs(bearing - current_bearing) > rotate_speed) {
+            
+            if(bearing > current_bearing ) { // Clockwise
                 bearing -= rotate_speed;
+            } else { // Counter-clockwise
+                bearing += rotate_speed;
             }
         }
         
