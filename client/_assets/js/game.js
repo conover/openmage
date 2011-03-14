@@ -54,7 +54,7 @@ var GameManager = function(play_area_id) {
                                     },
         ELEMENT_COLD        = new function() {
                                         this.id = 3
-                                        this.color  = 'rgba(100,175,255,.5)';
+                                        this.color  = 'rgba(146,199,199,.5)'//paleturquoise';
                                         this.letter = 'R'
                                         this.keydown_key = 82;
                                         this.keypress_key = 114;
@@ -63,7 +63,7 @@ var GameManager = function(play_area_id) {
                                     },
         ELEMENT_LIGHTNING   = new function() {
                                         this.id = 4
-                                        this.color  = 'rgba(150,0,255,.5)';
+                                        this.color  = 'rgba(142,53,239,.5)';
                                         this.letter = 'A'
                                         this.keydown_key = 65;
                                         this.keypress_key = 97;
@@ -81,7 +81,7 @@ var GameManager = function(play_area_id) {
                                      },
         ELEMENT_EARTH       = new function() {
                                         this.id = 6
-                                        this.color  = 'rgba(80,80,60,.5)';
+                                        this.color  = 'rgba(128,64,0,.5)';
                                         this.letter = 'D'
                                         this.keydown_key = 68;
                                         this.keypress_key = 100;
@@ -90,7 +90,7 @@ var GameManager = function(play_area_id) {
                                     },
         ELEMENT_FIRE        = new function() {
                                         this.id = 7
-                                        this.color  = 'rgba(255,175,0,.5)';
+                                        this.color  = 'rgba(255,127,0,.5)';
                                         this.letter = 'F'
                                         this.keydown_key = 70;
                                         this.keypress_key = 102;
@@ -99,7 +99,7 @@ var GameManager = function(play_area_id) {
                                     },
         ELEMENT_STEAM        = new function() {
                                         this.id = 8
-                                        this.color  = 'rgba(250,250,250,.5)';
+                                        this.color  = 'rgba(128,128,128,.5)';
                                         this.letter = null
                                         this.keydown_key = null;
                                         this.keypress_key = null;
@@ -107,7 +107,7 @@ var GameManager = function(play_area_id) {
                                      },
         ELEMENT_ICE         = new function() {
                                         this.id = 9
-                                        this.color  = 'rgba(135,195,222,.5)';
+                                        this.color  = 'rgba(0,255,255,.5)';
                                         this.letter = null
                                         this.keydown_key = null;
                                         this.keypress_key = null;
@@ -376,10 +376,10 @@ var GameManager = function(play_area_id) {
                 context.fillStyle = 'black';
                 context.fillText(element.letter, vert_location.x + (i * 32), vert_location.y);
                 
-                // Draw the element circle                
+                // Draw the element circle
                 if(element_pressed == element.letter) {
-                    context.fillStyle = element.color.slice(0, element.color.length - 3) + '1)';
                     context.strokeStyle = 'rgba(100,100,100,1)';
+                    context.fillStyle = element.color.slice(0, element.color.length - 3) + '1)';;
                 } else {
                     context.strokeStyle = 'rgba(100,100,100,.5)';
                     context.fillStyle = element.color

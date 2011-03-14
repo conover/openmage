@@ -217,7 +217,7 @@ var Mage = function() {
             
             context.strokeStyle = 'rgba(100,100,100,.5)';
             if(typeof(element) != 'undefined') {
-                context.fillStyle = element.color.slice(0, element.color.length - 3) + '1)';;
+                context.fillStyle = element.color.slice(0, element.color.length - 3) + '1)';
             } else {
                 context.fillStyle = 'rgba(175,175,175,.3)';
             }
