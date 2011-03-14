@@ -269,7 +269,7 @@ var Beam = function(mouse_loc, mage) {
         propogation     = .013,
         
         bearing         = null,
-        rotate_speed    = .013;
+        rotate_speed    = .018;
     
     this.mouse_loc = mouse_loc
     this.types.push('beam');
